@@ -1,7 +1,7 @@
 # Potree Core 2.0
 
-[![npm version](https://badge.fury.io/js/potree-core.svg)](https://badge.fury.io/js/potree-core)
-[![GitHub version](https://badge.fury.io/gh/tentone%2Fpotree-core.svg)](https://badge.fury.io/gh/tentone%2Fpotree-core)
+[![npm version](https://badge.fury.io/js/potree-core-enhance.svg)](https://badge.fury.io/js/potree-core-enhance)
+[![GitHub version](https://badge.fury.io/gh/mfuu%2Fpotree-core.svg)](https://badge.fury.io/gh/mfuu%2Fpotree-core)
 
  - This project was originally based on [Potree Viewer 1.6](https://github.com/potree/potree) and is now since version 2.0 based on the [shiukaheng fork](https://github.com/shiukaheng/potree-loader) of the [Potree-Loader](https://github.com/pnext/three-loader).
  - Potree is a web based pouint cloud visualizer project created by Markus Schütz.

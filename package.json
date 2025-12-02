@@ -1,10 +1,10 @@
 {
-	"name": "potree-core",
-	"version": "2.0.11",
+	"name": "potree-core-enhance",
+	"version": "2.0.12",
 	"description": "Potree wrapper for three.js applications",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/tentone/potree-core.git"
+		"url": "https://github.com/mfuu/potree-core.git"
 	},
 	"files": [
 		"dist"
