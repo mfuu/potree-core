@@ -52,6 +52,9 @@ interface RenderedNode {
   octree: PointCloudOctree;
 }
 
+/**
+ * Handle picking for points in octree.
+ */
 export class PointCloudOctreePicker 
 {
 	private static readonly helperVec3 = new Vector3();
@@ -71,8 +74,7 @@ export class PointCloudOctreePicker
 		}
 	}
 
-	pick(
-		renderer: WebGLRenderer,
+	pick(renderer: WebGLRenderer,
 		camera: Camera,
 		ray: Ray,
 		octrees: PointCloudOctree[],
@@ -115,6 +117,9 @@ export class PointCloudOctreePicker
 		const x = Math.floor(clamp(pixelPosition.x - halfPickWndSize, 0, width));
 		const y = Math.floor(clamp(pixelPosition.y - halfPickWndSize, 0, height));
 
+		// Save render target so it can be restored after picking (for EDL and other multi-pass renderers).
+		const prevRenderTarget = renderer.getRenderTarget();
+
 		PointCloudOctreePicker.prepareRender(renderer, x, y, pickWndSize, pickMaterial, pickState);
 
 		const renderedNodes = PointCloudOctreePicker.render(
@@ -132,6 +137,10 @@ export class PointCloudOctreePicker
 
 		// Read back image and decode hit point
 		const pixels = PointCloudOctreePicker.readPixels(renderer, x, y, pickWndSize);
+
+		// Restore the render target to whatever it was before pick() was called.
+		renderer.setRenderTarget(prevRenderTarget);
+
 		const hit = PointCloudOctreePicker.findHit(pixels, pickWndSize);
 		return PointCloudOctreePicker.getPickPoint(hit, renderedNodes);
 	}
@@ -148,7 +157,10 @@ export class PointCloudOctreePicker
 		renderer.setRenderTarget(pickState.renderTarget);
 
 		// Render the intersected nodes onto the pick render target, clipping to a small pick window.
-		renderer.setScissor(x, y, pickWndSize, pickWndSize);
+		// x, y and pickWndSize are in device pixels. setScissor() multiplies by pixelRatio internally,
+		// so we must divide first to avoid applying the pixel ratio twice on high-DPI displays.
+		const pixelRatio = renderer.getPixelRatio();
+		renderer.setScissor(x / pixelRatio, y / pixelRatio, pickWndSize / pixelRatio, pickWndSize / pixelRatio);
 		renderer.setScissorTest(true);
 		renderer.state.buffers.depth.setTest(pickMaterial.depthTest);
 		renderer.state.buffers.depth.setMask(pickMaterial.depthWrite);
@@ -264,6 +276,10 @@ export class PointCloudOctreePicker
 			tempNode.matrixWorld = sceneNode.matrixWorld;
 			tempNode.matrixAutoUpdate = false;
 			tempNode.frustumCulled = false;
+
+			// Enable all layers so the picking camera can see EDL pass that temporarily limits the camera to the point-cloud layer
+			tempNode.layers.enableAll();
+
 			const nodeIndex = nodeIndexOffset + i + 1;
 			if (nodeIndex > 255) 
 			{
